@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>منبر الحكمة - Al-Manbar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'wisdom-gold': '#d4af37',
+              'wisdom-silver': '#c0c0c0',
+              'wisdom-bg': '#05070a',
+            },
+            fontFamily: {
+              sans: ['Tajawal', 'sans-serif'],
+              serif: ['Amiri', 'serif'],
+            },
+            animation: {
+              'slow-fade': 'fadeIn 1.2s ease-in-out',
+              'pulse-gentle': 'pulseGentle 4s infinite ease-in-out',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: 0, transform: 'translateY(10px)' },
+                '100%': { opacity: 1, transform: 'translateY(0)' },
+              },
+              pulseGentle: {
+                '0%, 100%': { opacity: 0.4 },
+                '50%': { opacity: 0.7 },
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        background: #05070a;
+        color: #f1f5f9;
+        overflow-x: hidden;
+        font-family: 'Tajawal', sans-serif;
+      }
+      .glass {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      }
+      .glass-bright {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+      }
+      .animated-gradient {
+        background: linear-gradient(-45deg, #05070a, #0f172a, #1e1b4b, #05070a);
+        background-size: 400% 400%;
+        animation: gradientBG 20s ease infinite;
+      }
+      @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      .text-glow {
+        text-shadow: 0 0 25px rgba(241, 245, 249, 0.4);
+      }
+      .quote-font {
+        font-family: 'Amiri', serif;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.37.0",
+    "path": "https://esm.sh/path@^0.12.7",
+    "url": "https://esm.sh/url@^0.11.4",
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "firebase/": "https://esm.sh/firebase@^12.8.0/"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
