@@ -67,7 +67,7 @@ const App: React.FC = () => {
   return (
     <Layout dynamicColor={wisdom?.moodColor}>
       {error && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 px-6 py-2 bg-red-900/40 text-red-200 border border-red-800 rounded-full text-sm animate-slow-fade z-[100]">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 px-6 py-2 bg-red-900/40 text-red-200 border border-red-800 rounded-full text-sm animate-slow-fade z-[150]">
           {error}
         </div>
       )}
@@ -102,12 +102,12 @@ const App: React.FC = () => {
           
           <button 
             type="button"
-            onMouseDown={handleAdminAccess}
-            className="fixed bottom-4 right-4 w-12 h-12 flex items-center justify-center text-slate-700 hover:text-wisdom-gold transition-all z-[100] opacity-40 hover:opacity-100 hover:scale-110 cursor-pointer bg-black/20 rounded-full backdrop-blur-sm"
+            onClick={handleAdminAccess}
+            className="fixed bottom-6 right-6 w-14 h-14 flex items-center justify-center text-slate-500 hover:text-wisdom-gold transition-all z-[200] opacity-30 hover:opacity-100 hover:scale-110 cursor-pointer bg-white/5 hover:bg-white/10 rounded-full backdrop-blur-md border border-white/5"
             title="إدارة المنبر"
           >
-            <svg className="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </button>
         </>
