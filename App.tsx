@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Layout } from './components/Layout';
 import { IntroSection } from './components/IntroSection';
@@ -6,6 +7,7 @@ import { WisdomCard } from './components/WisdomCard';
 import { ContemplationView } from './components/ContemplationView';
 import { LegacySection } from './components/LegacySection';
 import { AdminDashboard } from './components/AdminDashboard';
+import { AdminLogin } from './components/AdminLogin';
 import { AppState, Wisdom, Contemplation } from './types';
 import { summonWisdom, contemplateWisdom } from './services/geminiService';
 
@@ -16,7 +18,6 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // مراقبة الحالة في الكونسول للتأكد من التحميل
     console.debug(`[Al-Manbar] Current state: ${state}`);
   }, [state]);
 
@@ -56,13 +57,7 @@ const App: React.FC = () => {
   const handleAdminAccess = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    const password = window.prompt("الرجاء إدخال كلمة مرور الإدارة لدخول المنبر:");
-    if (password === "admin123") {
-      setState(AppState.ADMIN);
-    } else if (password !== null) {
-      alert("عذراً، كلمة المرور خاطئة. لا تملك صلاحية دخول غرفة الحكماء.");
-    }
+    setState(AppState.ADMIN_LOGIN);
   };
 
   return (
@@ -83,6 +78,12 @@ const App: React.FC = () => {
       )}
       {state === AppState.LEGACY && (
         <LegacySection onComplete={reset} onBack={reset} />
+      )}
+      {state === AppState.ADMIN_LOGIN && (
+        <AdminLogin 
+          onSuccess={() => setState(AppState.ADMIN)} 
+          onCancel={reset} 
+        />
       )}
       {state === AppState.ADMIN && (
         <AdminDashboard onBack={reset} />
