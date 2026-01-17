@@ -3,8 +3,8 @@ import { Wisdom, Contemplation } from "../types";
 import { getRandomWisdom } from "./firestoreService";
 
 /**
- * يستحضر حكمة من قاعدة بيانات Firestore بناءً على بحث المستخدم.
- * لا يتم استخدام أي ذكاء اصطناعي هنا، بل يتم البحث في المحتوى البشري الموثق.
+ * يستحضر حكمة من قاعدة بيانات Firestore بناءً على بحث المستخدم (الشعور).
+ * إذا لم يجد تطابقاً مع الشعور، يختار حكمة عشوائية لضمان استمرارية التجربة.
  */
 export const summonWisdom = async (userInput: string): Promise<Wisdom> => {
   // محاكاة وقت "تفكير" لتعزيز التجربة البصرية
@@ -13,7 +13,8 @@ export const summonWisdom = async (userInput: string): Promise<Wisdom> => {
   const wisdom = await getRandomWisdom(userInput);
   
   if (!wisdom) {
-    throw new Error("عذراً، لم نجد في خزانة الحكم ما يطابق بحثك حالياً. حاول بكلمات أخرى.");
+    // هذه الحالة تظهر فقط إذا كانت قاعدة البيانات فارغة تماماً
+    throw new Error("خزانة الحكم فارغة حالياً. يرجى من الحكماء بذر البيانات أولاً من لوحة الإدارة.");
   }
   
   return wisdom;
@@ -26,10 +27,9 @@ export const summonWisdom = async (userInput: string): Promise<Wisdom> => {
 export const contemplateWisdom = async (wisdom: Wisdom): Promise<Contemplation> => {
   await new Promise(resolve => setTimeout(resolve, 800));
   
-  // يتم تقسيم الشرح المخزن أو تقديمه بشكل منظم
   return {
     surfaceMeaning: wisdom.explanation,
-    deepMeaning: `هذه الحكمة من ${wisdom.author} تعكس عمق التجربة الإنسانية في سياق ${wisdom.category || 'الحياة'}.`,
-    practicalApplication: "تمثل هذه الحكمة في يومك، واجعلها نبراساً لقراراتك القادمة."
+    deepMeaning: `هذه الحكمة من ${wisdom.author} تعكس جوهر "${wisdom.category || 'الحكمة'}" في التجربة الإنسانية.`,
+    practicalApplication: "اجعل هذا المعنى نبراساً ليومك، وتمثله في مواقفك القادمة."
   };
 };
