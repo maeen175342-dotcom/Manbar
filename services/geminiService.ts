@@ -2,8 +2,22 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { Wisdom, Contemplation } from "../types";
 import { WISDOM_REPOSITORY } from "../data/wisdomRepository";
 
-// Fix: Initialize GoogleGenAI using the strictly required named parameter format
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Lazy initialization of AI to prevent early crashes in production environments like Vercel
+let aiInstance: GoogleGenAI | null = null;
+
+const getAI = () => {
+  if (aiInstance) return aiInstance;
+  
+  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+  
+  if (!apiKey || apiKey === 'PLACEHOLDER_API_KEY') {
+    console.error("Critical: API Key is missing. Please ensure GEMINI_API_KEY is set in your environment variables.");
+    throw new Error("مفتاح الخدمة غير متوفر. يرجى التحقق من إعدادات البيئة.");
+  }
+  
+  aiInstance = new GoogleGenAI({ apiKey });
+  return aiInstance;
+};
 
 const WISDOM_SCHEMA = {
   type: Type.OBJECT,
@@ -27,9 +41,6 @@ const CONTEMPLATION_SCHEMA = {
   required: ["surfaceMeaning", "deepMeaning", "practicalApplication"],
 };
 
-/**
- * دالة للبحث السريع في المستودع المحلي بناءً على الكلمات المفتاحية
- */
 const findLocalWisdom = (input: string): Wisdom | null => {
   const normalizedInput = input.toLowerCase();
   const matches = WISDOM_REPOSITORY.filter(w => 
@@ -47,11 +58,11 @@ const findLocalWisdom = (input: string): Wisdom | null => {
 export const summonWisdom = async (userInput: string): Promise<Wisdom> => {
   const localMatch = findLocalWisdom(userInput);
   if (localMatch) {
-    await new Promise(resolve => setTimeout(resolve, 600));
+    await new Promise(resolve => setTimeout(resolve, 800));
     return localMatch;
   }
 
-  // Fix: Call generateContent with model and contents directly as per guidelines
+  const ai = getAI();
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
     contents: `
@@ -67,7 +78,6 @@ export const summonWisdom = async (userInput: string): Promise<Wisdom> => {
   });
 
   try {
-    // Fix: Access response.text property directly (not a method)
     const textOutput = response.text || '{}';
     return JSON.parse(textOutput) as Wisdom;
   } catch (error) {
@@ -76,7 +86,7 @@ export const summonWisdom = async (userInput: string): Promise<Wisdom> => {
 };
 
 export const contemplateWisdom = async (wisdom: Wisdom): Promise<Contemplation> => {
-  // Fix: Call generateContent with model and contents directly
+  const ai = getAI();
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
     contents: `
@@ -92,7 +102,6 @@ export const contemplateWisdom = async (wisdom: Wisdom): Promise<Contemplation> 
   });
 
   try {
-    // Fix: Access response.text property directly
     return JSON.parse(response.text || '{}') as Contemplation;
   } catch (error) {
     throw new Error("تعذر تبسيط هذه الحكمة الآن.");
