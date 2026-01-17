@@ -1,10 +1,14 @@
 
 export interface Wisdom {
+  id?: string;
   text: string;
   author: string;
   source: string;
+  explanation: string;
   moodColor: string;
   category?: string;
+  createdAt?: number;
+  updatedAt?: number;
 }
 
 export interface Contemplation {
