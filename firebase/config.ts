@@ -11,8 +11,8 @@ const firebaseConfig = {
   measurementId: "G-R505Y60GVP"
 };
 
-// تهيئة التطبيق مع التحقق من عدم وجود نسخة مفعلة مسبقاً
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+// تهيئة التطبيق بنمط يحمي من التكرار ويضمن استقرار الخدمات في Vercel
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
 
 export { db };
