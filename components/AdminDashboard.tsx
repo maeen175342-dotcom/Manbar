@@ -19,7 +19,9 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedWisdoms, setGeneratedWisdoms] = useState<Omit<Wisdom, 'id' | 'createdAt' | 'updatedAt'>[]>([]);
   
-  const hasApiKey = process.env.API_KEY && process.env.API_KEY !== 'PLACEHOLDER_API_KEY';
+  // التحقق من وجود المفتاح في أي من المتغيرين الممكنين
+  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+  const hasApiKey = apiKey && apiKey !== 'PLACEHOLDER_API_KEY';
 
   // CMS State
   const [editingWisdomId, setEditingWisdomId] = useState<string | null>(null);
@@ -40,7 +42,7 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
       setLegacyEntries(legacy);
       setWisdoms(library);
     } catch (err) {
-      alert("فشل في تحميل البيانات من Firestore");
+      console.error(err);
     }
     setLoading(false);
   };
@@ -51,15 +53,15 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
 
   const handleAISummon = async () => {
     if (!hasApiKey) {
-      alert("مفتاح API غير متوفر. يرجى ضبطه في ملف البيئة.");
+      alert("مفتاح API غير متوفر في الإعدادات (.env.local)");
       return;
     }
     setIsGenerating(true);
     try {
       const batch = await generateWisdomsBatch(5);
       setGeneratedWisdoms(batch);
-    } catch (err) {
-      alert("فشل في توليد الحكم. تأكد من اتصالك بالإنترنت وصلاحية المفتاح.");
+    } catch (err: any) {
+      alert(`خطأ في التوليد: ${err.message}`);
     } finally {
       setIsGenerating(false);
     }
@@ -74,19 +76,24 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
       setGeneratedWisdoms([]);
       await loadData();
       setActiveTab('wisdoms');
-      alert("تم حفظ جميع الحكم المولدة بنجاح!");
+      alert("تم حفظ الحكم بنجاح في Firestore!");
     } catch (err) {
-      alert("حدث خطأ أثناء حفظ الحكم.");
+      alert("حدث خطأ أثناء حفظ البيانات");
     } finally {
       setLoading(false);
     }
   };
 
   const handleSeed = async () => {
-    if (!window.confirm("هل تريد بذر 50 حكمة أولية في قاعدة البيانات؟")) return;
+    if (!window.confirm("هل تريد بذر 50 حكمة أولية في قاعدة البيانات؟ سيستغرق ذلك لحظات.")) return;
     setLoading(true);
-    await seedWisdoms();
-    await loadData();
+    try {
+      await seedWisdoms();
+      await loadData();
+      alert("تم بذر البيانات بنجاح!");
+    } catch (err) {
+      alert("فشل بذر البيانات. تأكد من إعدادات Firebase.");
+    }
     setLoading(false);
   };
 
@@ -160,7 +167,6 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
 
       {activeTab === 'wisdoms' && (
         <div className="grid md:grid-cols-3 gap-8">
-          {/* Form */}
           <div className="md:col-span-1 glass p-6 rounded-3xl h-fit sticky top-6">
             <h3 className="text-xl text-white mb-6 font-bold flex items-center gap-2">
               {editingWisdomId ? '✏️ تعديل حكمة' : '➕ إضافة حكمة'}
@@ -221,7 +227,6 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
             </form>
           </div>
 
-          {/* List */}
           <div className="md:col-span-2 space-y-4">
             {loading ? (
               <div className="p-20 text-center">
@@ -262,7 +267,6 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
 
       {activeTab === 'ai' && (
         <div className="space-y-8 animate-slow-fade">
-          {/* AI Banner */}
           <div className="bg-gradient-to-r from-purple-900/40 via-indigo-900/40 to-purple-900/40 p-10 rounded-[2.5rem] border border-purple-500/20 text-center space-y-6 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
             <div className="relative z-10 flex flex-col items-center gap-4">
@@ -274,7 +278,7 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
               
               <button 
                 onClick={handleAISummon}
-                disabled={isGenerating || !hasApiKey}
+                disabled={isGenerating}
                 className={`mt-4 px-12 py-5 rounded-full font-bold text-xl transition-all flex items-center gap-4 ${isGenerating ? 'bg-slate-800 text-slate-500' : 'bg-white text-purple-900 hover:scale-105 active:scale-95 shadow-2xl'}`}
               >
                 {isGenerating ? (
@@ -291,12 +295,13 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
               </button>
               
               {!hasApiKey && (
-                <p className="text-red-400 text-sm font-medium">⚠️ يرجى ضبط مفتاح GEMINI_API_KEY لتفعيل التوليد.</p>
+                <div className="p-4 bg-red-900/20 border border-red-500/30 rounded-2xl mt-4">
+                  <p className="text-red-400 text-sm font-medium">⚠️ مفتاح API غير متوفر. الزر قد لا يعمل حتى يتم ضبط GEMINI_API_KEY.</p>
+                </div>
               )}
             </div>
           </div>
 
-          {/* Generated Preview */}
           {generatedWisdoms.length > 0 && (
             <div className="space-y-6 animate-slow-fade">
               <div className="flex justify-between items-center px-4">

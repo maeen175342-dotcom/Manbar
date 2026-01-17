@@ -3,9 +3,6 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { Wisdom, Contemplation } from "../types";
 import { getRandomWisdom } from "./firestoreService";
 
-// تهيئة عميل Google GenAI
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
 /**
  * يستحضر حكمة من قاعدة بيانات Firestore بناءً على بحث المستخدم (الشعور).
  */
@@ -34,14 +31,19 @@ export const contemplateWisdom = async (wisdom: Wisdom): Promise<Contemplation> 
  * توليد دفعة من الحكم الجديدة باستخدام الذكاء الاصطناعي (للمسؤول فقط).
  */
 export const generateWisdomsBatch = async (count: number = 5): Promise<Omit<Wisdom, 'id' | 'createdAt' | 'updatedAt'>[]> => {
-  if (!process.env.API_KEY || process.env.API_KEY === 'PLACEHOLDER_API_KEY') {
-    throw new Error("مفتاح API غير متوفر لتوليد المحتوى.");
+  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+  
+  if (!apiKey || apiKey === 'PLACEHOLDER_API_KEY') {
+    throw new Error("مفتاح API غير متوفر. يرجى ضبط GEMINI_API_KEY في ملف .env.local");
   }
+
+  // تهيئة العميل فقط عند استدعاء الوظيفة
+  const ai = new GoogleGenAI({ apiKey });
 
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: `قم بتوليد ${count} حكم عربية تراثية أو فلسفية عميقة. 
+      contents: `قم بتوليد ${count} حكم عربية تراثية أو فلسفية عميقة وفريدة. 
       يجب أن يكون لكل حكمة: نص، قائل، مصدر (أو كتاب)، شرح مفصل (explanation)، لون شعور مناسب (hex code)، وتصنيف شعوري (مثل: الصبر، الهمة، الحكمة).
       أجب فقط بتنسيق JSON كقائمة من الكائنات.`,
       config: {
